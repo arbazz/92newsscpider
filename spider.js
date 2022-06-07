@@ -7,12 +7,6 @@ function delay(time) {
 }
 let index = 0;
 let elements = "";
-(async () => {
-  const browser = await puppeteer.launch({ headless: false });
-  const page = await browser.newPage();
-  await page.goto("https://92newshd.tv/latest-news");
-  await getData(page, index);
-})();
 
 async function initiate(page, index) {
   return new Promise(async (res) => {
@@ -20,13 +14,26 @@ async function initiate(page, index) {
     res(elements);
   });
 }
+fs.readFile("test.txt", "utf8", async (err, data) => {
+  if (err) {
+    console.error(err);
+    return;
+  }
+  index = parseInt(data);
+  console.log(data);
+  const browser = await puppeteer.launch({ headless: false });
+  const page = await browser.newPage();
+  await page.goto("https://92newshd.tv/latest-news");
+  await getData(page, index);
+});
 async function getData(page) {
+  await fs.writeFileSync("test.txt", String(index));
   console.log("cuuret ->  ", index);
   console.log("element length =>  ", elements.length);
   await delay(2000);
   let newTemp = await initiate(page);
   console.log("new lenght ", newTemp.length);
-  if(newTemp.length <= index){
+  if (newTemp.length <= index) {
     increaeTemp(page);
     return;
   }
@@ -58,7 +65,7 @@ async function getData(page) {
     // );
     // console.log(btnAction);
     // await btnAction.evaluate((form) => form.click());
-    let button = await page.$('.btn-more');
+    let button = await page.$(".btn-more");
     await button.click();
     await delay(2000);
     let newTemp = await initiate(page);
@@ -70,13 +77,11 @@ async function getData(page) {
   }
 }
 
-const increaeTemp =async (page)=> {
-  
-    let button = await page.$('.btn-more');
-    await button.click();
-    await delay(2000);
-    let newTemp = await initiate(page);
-    elements = newTemp;
-    getData(page);
-  
-}
+const increaeTemp = async (page) => {
+  let button = await page.$(".btn-more");
+  await button.click();
+  await delay(2000);
+  let newTemp = await initiate(page);
+  elements = newTemp;
+  getData(page);
+};
